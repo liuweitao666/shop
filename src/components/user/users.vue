@@ -46,12 +46,27 @@
         <el-table-column label="操作">
           <template slot-scope="scope">
             <!-- 编辑按钮 -->
-            <el-button size="mini" type="primary" icon="el-icon-edit" @click="editUser(scope.row.id)"></el-button>
+            <el-button
+              size="mini"
+              type="primary"
+              icon="el-icon-edit"
+              @click="editUser(scope.row.id)"
+            ></el-button>
             <!-- 删除按钮 -->
-            <el-button size="mini" type="danger" icon="el-icon-delete" @click="removeusers(scope.row.id)"></el-button>
+            <el-button
+              size="mini"
+              type="danger"
+              icon="el-icon-delete"
+              @click="removeusers(scope.row.id)"
+            ></el-button>
             <!-- 分配角色 -->
             <el-tooltip effect="dark" content="分配角色" placement="top" :enterable="false">
-              <el-button size="mini" type="warning" icon="el-icon-setting"></el-button>
+              <el-button
+                size="mini"
+                type="warning"
+                icon="el-icon-setting"
+                @click="assignment(scope.row)"
+              ></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -108,10 +123,9 @@
             ref="editForm"
             label-width="75px"
             class="demo-ruleForm"
-            
           >
             <el-form-item label="用户名" prop="username">
-              <el-input v-model="editusers.username" size="medium" value="" disabled></el-input>
+              <el-input v-model="editusers.username" size="medium" value disabled></el-input>
             </el-form-item>
             <el-form-item label="邮箱" prop="email">
               <el-input v-model="editusers.email" size="medium"></el-input>
@@ -127,6 +141,27 @@
           <el-button type="primary" @click="editSubmit">确 定</el-button>
         </span>
       </el-dialog>
+      <!-- 分配角色的对话框 -->
+      <el-dialog title="角色设置" :visible.sync="RoledialogVisible" width="35%" @close="resetroles">
+        <div>
+          <p>当前名称：{{userinfo.username}}</p>
+          <p>当前角色：{{userinfo.role_name}}</p>
+          <p>分配角色：
+          <el-select v-model="editrolesid" placeholder="请选择">
+            <el-option
+              v-for="item in roleslist"
+              :key="item.id"
+              :label="item.roleName"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+          </p>
+        </div>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="RoledialogVisible=false">取 消</el-button>
+          <el-button type="primary" @click="RoleSubmit">确 定</el-button>
+        </span>
+      </el-dialog>
     </el-card>
   </div>
 </template>
@@ -135,20 +170,20 @@ export default {
   name: "users",
   data() {
     // 验证邮箱的规则
-    var cheakemail = (rule,value,callback)=>{
+    var cheakemail = (rule, value, callback) => {
       // 邮箱验证的正则
       const regemail = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+\.([a-zA-Z0-9_-])+/
       // console.log(regemail.test(value))
       if (regemail.test(value)) return callback()
       callback(new Error("请输入合法的邮箱"))
-      };
-      var checkmodile = (rule,value,callback)=>{
+    }
+    var checkmodile = (rule, value, callback) => {
       // 邮箱手机的正则
       const regmodile = /^1(3|4|5|7|8)\d{9}$/
       // console.log(regmodile.test(value))
       if (regmodile.test(value)) return callback()
       callback(new Error("请输入合法的手机号"))
-      };
+    }
     return {
       queryinfo: {
         query: "",
@@ -160,35 +195,39 @@ export default {
       userslist: [],
       total: 0,
       dialogVisible: false,
-       // 添加表单的数据
-      addForm:{
-          username:'',
-          password:'',
-          email:'',
-          mobile:'',
+      // 添加表单的数据
+      addForm: {
+        username: "",
+        password: "",
+        email: "",
+        mobile: ""
       },
       // 查询到的用户信息对象
-      editusers:{},
+      editusers: {},
       // 邮箱校验
-      rulesFrom:{
-          username: [
-            { required: true, message: '请输入用户名', trigger: 'blur' },
-            { min: 3, max: 6, message: '长度在 3 到 6 个字符', trigger: 'blur' }
-          ],
-          password: [
-            { required: true, message: '请输入密码', trigger: 'blur' },
-            { min: 6, max: 16, message: '长度在 6 到 16 个字符', trigger: 'blur' }
-          ],
-          email: [
-            { required: true, message: '请输入邮箱', trigger: 'blur' },
-            { validator: cheakemail, trigger: 'blur'}
-          ],
-          mobile: [
-            { required: true, message: '请输入手机号', trigger: 'blur' },
-            { validator: checkmodile, trigger: 'blur'}
-          ],
+      rulesFrom: {
+        username: [
+          { required: true, message: "请输入用户名", trigger: "blur" },
+          { min: 3, max: 6, message: "长度在 3 到 6 个字符", trigger: "blur" }
+        ],
+        password: [
+          { required: true, message: "请输入密码", trigger: "blur" },
+          { min: 6, max: 16, message: "长度在 6 到 16 个字符", trigger: "blur" }
+        ],
+        email: [
+          { required: true, message: "请输入邮箱", trigger: "blur" },
+          { validator: cheakemail, trigger: "blur" }
+        ],
+        mobile: [
+          { required: true, message: "请输入手机号", trigger: "blur" },
+          { validator: checkmodile, trigger: "blur" }
+        ]
       },
-      editdialogVisible:false,
+      editdialogVisible: false,
+      RoledialogVisible: false,
+      userinfo: {},
+      roleslist: [],
+      editrolesid:''
     }
   },
   created() {
@@ -224,68 +263,105 @@ export default {
       if (res.meta.status !== 200) return this.$message.error("更新状态失败")
       this.$message.success("更新状态成功")
     },
-    adddialogClosed(){
+    // 关闭重置添加表单
+    adddialogClosed() {
       this.$refs.addForm.resetFields()
     },
     // 添加用户的前校验数据是否合法
-    addUser(){
-      this.$refs.addForm.validate(async valid=>{
-      //  valid为true则数据合法
-        if(valid){
-          const {data:res} =await this.$http.post('users',this.addForm)
-          if(res.meta.status !==201) return this.$message.error('添加用户失败')
-          this.$message.success('添加用户成功')
+    addUser() {
+      this.$refs.addForm.validate(async valid => {
+        //  valid为true则数据合法
+        if (valid) {
+          const { data: res } = await this.$http.post("users", this.addForm)
+          if (res.meta.status !== 201)
+            return this.$message.error("添加用户失败")
+          this.$message.success("添加用户成功")
           // 隐藏添加用户的对话框
           this.dialogVisible = false
           // 重新获取用户的数据
           this.getuserslist()
         }
       })
-      
     },
-    async editUser(id){
-      const {data:res} =await this.$http.get('users/'+id)
-      if(res.meta.status !==200)return this.$message.error('查询用户失败')
+    async editUser(id) {
+      const { data: res } = await this.$http.get("users/" + id)
+      if (res.meta.status !== 200) return this.$message.error("查询用户失败")
       this.editusers = res.data
       this.editdialogVisible = true
     },
-    editSubmit(){
-      this.$refs.editForm.validate(async (valid)=>{
+    editSubmit() {
+      this.$refs.editForm.validate(async valid => {
         // console.log(valid)
-        if(!valid) return
+        if (!valid) return
         // 发送修改数据请求
-        const {data:res}= await this.$http.put('users/'+this.editusers.id,{email:this.editusers.email,mobile:this.editusers.mobile})
-        if(res.meta.status!==200) return this.$message.error("更新失败")
-        
+        const { data: res } = await this.$http.put(
+          "users/" + this.editusers.id,
+          { email: this.editusers.email, mobile: this.editusers.mobile }
+        )
+        if (res.meta.status !== 200) return this.$message.error("更新失败")
+
         // 隐藏弹出框
-        this.editdialogVisible =false
+        this.editdialogVisible = false
         // 重新获取用户的数据
         this.getuserslist()
         // 提示修改成功
         this.$message.success(res.meta.msg)
       })
     },
-    resetedit(){
+    resetedit() {
       this.$refs.editForm.resetFields()
       // this.editdialogVisible = false
     },
-    async removeusers(id){
+    async removeusers(id) {
       // 弹出删除确认提示框
-      const confirmresult = await this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).catch(err=>err)  // 抓取错误消息
-        // console.log(confirmresult)
-        // 点击cancel，判断返回的result值取消操作
-      if(confirmresult=='cancel') return this.$message("已取消操作")
+      const confirmresult = await this.$confirm(
+        "此操作将永久删除该文件, 是否继续?",
+        "提示",
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        }
+      ).catch(err => err) // 抓取错误消息
+      // console.log(confirmresult)
+      // 点击cancel，判断返回的result值取消操作
+      if (confirmresult == "cancel") return this.$message("已取消操作")
       // 通过调用API接口删除数据
-      const {data:res} = await this.$http.delete('users/'+id)
+      const { data: res } = await this.$http.delete("users/" + id)
       // 判断返回的状态码，不是200则删除失败
-      if(res.meta.status !== 200) return this.$message.error("删除失败")
+      if (res.meta.status !== 200) return this.$message.error("删除失败")
       this.$message.success("删除成功")
       // 重新获取用户的数据
       this.getuserslist()
+    },
+    async assignment(userinfo) {
+      // console.log(userinfo)
+      this.userinfo = userinfo
+      const { data: res } = await this.$http.get("roles")
+      if (res.meta.status !== 200)
+        return this.$message.error("获取角色列表失败")
+      this.roleslist = res.data
+      console.log(this.roleslist)
+      this.RoledialogVisible = true
+    },
+    // 点击按钮 分配角色
+    async RoleSubmit() {
+      if(!this.editrolesid){
+        this.$message.warning("未选择角色")
+      }
+     const {data:res} = await this.$http.put(`users/${this.userinfo.id}/role`,{rid:this.editrolesid})
+     return console.log(res)
+     if(res.meta.status!==200) return this.$message.error("角色设置失败")
+     this.$message.success("角色设置成功")
+     // 重新获取用户的数据
+     this.getuserslist()
+     // 设置成功，关闭选框  
+     this.RoledialogVisible = false
+    },
+    // 关闭分配角色对话框，清空角色选框
+    resetroles(){
+      this.editrolesid = ''
+      this.userinfo = {}
     }
   }
 }

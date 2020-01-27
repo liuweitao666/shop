@@ -9,12 +9,12 @@
       <div class="bottom">
         <el-form :model="loginForm" :rules="rules" ref="ruleForm1" class="demo-ruleForm">
           <el-form-item prop="username">
-            <el-input placeholder="用户名" prefix-icon="el-icon-search" v-model="loginForm.username"></el-input>
+            <el-input placeholder="用户名" prefix-icon="el-icon-user" v-model="loginForm.username"></el-input>
           </el-form-item>
           <el-form-item prop="password">
             <el-input
               placeholder="密码"
-              prefix-icon="el-icon-search"
+              prefix-icon="el-icon-lock"
               type="password"
               v-model="loginForm.password"
             ></el-input>

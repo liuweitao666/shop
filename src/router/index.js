@@ -4,7 +4,9 @@ import Login from "../view/Login";
 import home from "../components/home"
 import Welcome from "../components/Welcome"
 import users from "../components/user/users"
-import roles from "../components/roles/roles"
+import roles from "../components/power/roles/roles"
+import Rights from "../components/power/right/Rights"
+import Cate from "../components/goods/Cate"
 
 Vue.use(VueRouter)
 
@@ -27,7 +29,9 @@ const routes = [
     children:[
       {path:'/Welcome',component:Welcome},
       {path:'/users',component:users},
-      {path:'/roles',component:roles}
+      {path:'/roles',component:roles},
+      {path:'/rights',component:Rights},
+      {path:'/categories',component:Cate},
     ]
   }
 ]
