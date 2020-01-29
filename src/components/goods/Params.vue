@@ -172,7 +172,7 @@ export default {
         label: "cat_name",
         children: "children",
         expandTrigger: "hover",
-        value: "cat_id"
+        value: "cat_id",
       },
       isopt: true,
       //   保存动态参数的id值

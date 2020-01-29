@@ -5,3 +5,15 @@ body,html,#app{
     padding: 0;
     min-width: 1366px;
 }
+.el-breadcrumb{
+    font-size: 13px !important;
+}
+.el-steps{
+    margin:15px 0;
+}
+.el-step__title{
+    font-size:13px !important;
+}
+.ql-editor{
+    height: 300px !important;
+}
