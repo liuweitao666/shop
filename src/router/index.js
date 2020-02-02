@@ -9,6 +9,7 @@ import Rights from "../components/power/right/Rights"
 import Cate from "../components/goods/Cate"
 import Params from "../components/goods/Params"
  const goods = ()=>import("../components/goods/goods")
+
  
 Vue.use(VueRouter)
 
@@ -36,7 +37,9 @@ const routes = [
       {path:'/categories',component:Cate},
       {path:'/params',component:Params},
       {path:'/goods',component:goods},
-      {path:'/goods/addpage', component:()=>import("../components/goods/add") }
+      {path:'/goods/addpage', component:()=>import("../components/goods/add") },
+      {path:'/orders',component:()=>import("../components/order/Orders") },
+      {path:'/reports',component:()=>import("../components/reports/Reports") },
     ]
   }
 ]
