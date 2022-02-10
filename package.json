@@ -27,7 +27,7 @@
     "@vue/cli-service": "^4.1.0",
     "babel-plugin-component": "^1.1.1",
     "babel-plugin-transform-remove-console": "^6.9.4",
-    "node-sass": "^4.12.0",
+    "node-sass": "^7.0.0",
     "sass-loader": "^8.0.0",
     "vue-template-compiler": "^2.6.10"
   },
